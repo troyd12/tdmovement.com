@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+  <!-- HTTPS Redirect: force secure connection -->
+  <script>
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      location.replace('https:' + window.location.href.substring(window.location.protocol.length));
+    }
+  </script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Troy Dixon | The TD Movement — Lead Recruiter</title>
@@ -1073,6 +1080,38 @@ a,button,.btn,.chip,.tag,.pill,.soc,.clink,.cc,.pcard,.proj,.scard{
 a:focus-visible,button:focus-visible{
   outline:2px solid var(--orange);outline-offset:3px;
 }
+
+  /* ===== COOKIE CONSENT BANNER ===== */
+  #cookie-banner {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+    background: var(--bg-card); border-top: 1px solid var(--border);
+    padding: 1rem 2rem; display: flex; flex-wrap: wrap;
+    align-items: center; justify-content: space-between; gap: 1rem;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+    transform: translateY(100%); transition: transform 0.4s ease;
+  }
+  #cookie-banner.show { transform: translateY(0); }
+  #cookie-banner.hide { transform: translateY(100%); }
+  .cookie-text { flex: 1; min-width: 200px; font-size: 0.78rem; color: var(--gray); line-height: 1.5; }
+  .cookie-text a { color: var(--orange); text-decoration: underline; }
+  .cookie-buttons { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .cookie-btn { padding: 0.45rem 1.1rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; border: none; transition: opacity 0.2s; }
+  .cookie-btn:hover { opacity: 0.85; }
+  .cookie-accept { background: var(--orange); color: #000; }
+  .cookie-decline { background: transparent; color: var(--gray); border: 1px solid var(--border) !important; }
+  /* HAMBURGER MENU */
+  .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; z-index: 1100; }
+  .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; transition: all 0.3s ease; }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  @media(max-width:640px) {
+    .nav-hamburger { display: flex; }
+    .nav-links { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--nav-bg); flex-direction: column; align-items: center; justify-content: center; gap: 1.8rem; z-index: 1000; backdrop-filter: blur(20px); }
+    .nav-links.mobile-open { display: flex; }
+    .nav-links a { font-size: 1rem !important; letter-spacing: 3px !important; }
+    .nav-tag { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -2359,7 +2398,55 @@ document.addEventListener('keydown',(e)=>{
   const aboutSection=document.getElementById('about');
   if(aboutSection)observer.observe(aboutSection);
 })();
+
+
+  // ===== COOKIE CONSENT =====
+  (function() {
+    var banner = document.getElementById("cookie-banner");
+    var acceptBtn = document.getElementById("cookieAccept");
+    var declineBtn = document.getElementById("cookieDecline");
+    if (!banner) return;
+    var consent = localStorage.getItem("tdm_cookie_consent");
+    if (!consent) { setTimeout(function(){ banner.classList.add("show"); }, 800); }
+    function dismissBanner(choice) {
+      localStorage.setItem("tdm_cookie_consent", choice);
+      banner.classList.remove("show"); banner.classList.add("hide");
+      setTimeout(function(){ banner.style.display = "none"; }, 500);
+    }
+    if (acceptBtn) acceptBtn.addEventListener("click", function(){ dismissBanner("accepted"); });
+    if (declineBtn) declineBtn.addEventListener("click", function(){ dismissBanner("declined"); });
+  })();
+
+  // ===== MOBILE HAMBURGER NAV =====
+  (function() {
+    var hamburger = document.getElementById("navHamburger");
+    var navLinks = document.querySelector(".nav-links");
+    if (!hamburger || !navLinks) return;
+    hamburger.addEventListener("click", function() {
+      var isOpen = navLinks.classList.toggle("mobile-open");
+      hamburger.classList.toggle("open", isOpen);
+      hamburger.setAttribute("aria-expanded", isOpen);
+      document.body.style.overflow = isOpen ? "hidden" : "";
+    });
+    navLinks.querySelectorAll("a").forEach(function(link) {
+      link.addEventListener("click", function() {
+        navLinks.classList.remove("mobile-open");
+        hamburger.classList.remove("open");
+        hamburger.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+      });
+    });
+  })();
 </script>
 
+
+  <!-- Cookie Consent Banner -->
+  <div id="cookie-banner" role="dialog" aria-label="Cookie consent">
+    <p class="cookie-text">This site uses cookies to enhance your experience and analyze traffic. By clicking "Accept", you consent to our use of cookies. <a href="#" onclick="return false;">Learn more</a></p>
+    <div class="cookie-buttons">
+      <button class="cookie-btn cookie-accept" id="cookieAccept">Accept</button>
+      <button class="cookie-btn cookie-decline" id="cookieDecline">Decline</button>
+    </div>
+  </div>
 </body>
 </html>
